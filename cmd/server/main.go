@@ -5,10 +5,14 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+
+	"github.com/fbuys/myurls/internal/myurls"
 )
 
 func main() {
-	http.HandleFunc("/", redirect)
+	for _, url := range myurls.GetAllUrls() {
+		http.HandleFunc(url.Id, redirect(url.Address))
+	}
 
 	startServer()
 }
@@ -30,6 +34,8 @@ func startServer() {
 	}
 }
 
-func redirect(w http.ResponseWriter, req *http.Request) {
-	http.Redirect(w, req, "https://fbuys.dev/", 302)
+func redirect(address string) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, req *http.Request) {
+		http.Redirect(w, req, address, 302)
+	}
 }
